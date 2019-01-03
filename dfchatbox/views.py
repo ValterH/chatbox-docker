@@ -5,25 +5,15 @@ from django.http import HttpResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 
-import re
-import imgkit
-import string
-import random
-from PIL import Image
 from lxml.html import fromstring
 from lxml import etree
 import json
 from bs4 import BeautifulSoup
-import urllib3
 import apiai
 import requests
-import base64
-from datetime import datetime
 from dfchatbox.models import Procedure
 from haystack.query import SearchQuerySet
 
-# Create your views here.
-# -*- coding: utf-8 -*-
 
 @require_http_methods(['POST','GET'])
 def index(request):
@@ -202,7 +192,7 @@ def index(request):
 			none={}
 			none['name']="Nobeden izmed naštetih"
 			none['value']= "reset"
-			data.append(none)
+			data = [none] + data
 		if text_answer.find("Ste mislili") > -1 or text_answer.find("skupine posegov") > -1 or text_answer.find("Izberi poseg")> -1:
 			if OGrequest.session['urgency'] or OGrequest.session['region']:
 				for item in data:
@@ -241,6 +231,15 @@ def index(request):
 			return HttpResponse('{{"text_answer":"{0}","response_type":"{1}","data":"{2}","url":"{3}"}}'.format(text_answer,response_type,data,url))
 		resetSession(OGrequest)
 		if text_answer:
+			if text_answer.find("Pri iskanju podatkov je prišlo do zamude")>-1:
+				current_data={}
+				current_data['procedure']=answer_json['result']['parameters']['procedure']
+				current_data['region']=answer_json['result']['parameters']['region']
+				current_data['urgency']=answer_json['result']['parameters']['urgency']
+				text_answer = "Pri iskanju podatkov je prišlo do zamude, ali želite ponovno poskusiti?"
+				value = current_data['procedure'] + "; " + current_data['region'] + "; " + current_data['urgency']
+				data = [{"name":"DA", "value":value},{"name":"NE","value":"reset"}]
+				return HttpResponse('{{"text_answer":"{0}","response_type":"{1}","data":"{2}"}}'.format(text_answer,"procedures",data))
 			return HttpResponse('{{"text_answer":"{0}","response_type":"{1}","data":"{2}"}}'.format(text_answer,"error",[]))
 		else:
 			return HttpResponse('{{"text_answer":"{0}","response_type":"{1}","data":"{2}"}}'.format("Zgleda, da je prišlo do napake.","error",[]))
@@ -249,6 +248,11 @@ def index(request):
 
 @require_http_methods(['GET'])
 def update_db(request):
+	## TODO
+	# -pisi indekse do kdaj prevaja
+	# -ko neha shrani ix
+	# updataj od tam naprej
+	
 	url = "https://cakalnedobe.ezdrav.si/Home/GetProcedures"
 	procedures = json.loads(requests.get(url).text)
 	print (len(procedures))
@@ -257,6 +261,7 @@ def update_db(request):
 	for procedure in procedures:
 		nameSLO=edit(procedure['Name'])
 		nameENG=translate(nameSLO).lower()
+		print("ENG:",nameENG)
 		pid=procedure['Id']
 		print("SLO:",nameSLO)
 		lem =lemmatize(nameSLO)
@@ -338,7 +343,7 @@ def whoosh(input, inSLO):
 		none={}
 		none['name']="Nobeden izmed naštetih"
 		none['value']=inSLO + " NONESLO"
-		data.append(none)
+		data = [none] + data
 
 	return data
 
@@ -377,7 +382,8 @@ def query(set,keywords):
 	result = set
 	for p in pairs:
 		new_set = set.filter(content=p[0]).filter(content=p[1])
-		result |= new_set
+		result = new_set
+	print(len(result))
 	if len(result) == 0 and len(keywords)>1:
 		for keyword in keywords:
 			new_set = set.filter(content=keyword)
@@ -466,7 +472,7 @@ def findSLO(input, english):
 	none={}
 	none['name']="Nobeden izmed naštetih"
 	none['value']= english + " NONE"
-	data.append(none)
+	data = [none] + data
 	return data
 
 def resetSession(request):

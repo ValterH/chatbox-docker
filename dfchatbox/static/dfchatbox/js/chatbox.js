@@ -341,7 +341,9 @@ function communicate(message,j){
                     $(".socketchatbox-chatArea").append('<div><input type="text" class="search_box" onkeyup="findProcedure()" placeholder="Išči"></input></div>')
                 }
                 for (var k = 0; k < data.length; k++) {
-                    $(".socketchatbox-chatArea").append('<button name="' + data[k]['value'] + '" class="choice_btn socketchatbox-messageBody socketchatbox-messageBody-me" id="btn' + i + j + '" type="button">' + data[k]['name'] + '</button>');
+                    val = data[k]['value'];
+                    if (val.indexOf("NONE") > -1 || val == "reset") $(".socketchatbox-chatArea").append('<button name="' + data[k]['value'] + '" class="choice_btn socketchatbox-messageBody socketchatbox-messageBody-me-none" id="btn' + i + j + '" type="button">' + data[k]['name'] + '</button>');
+                    else $(".socketchatbox-chatArea").append('<button name="' + data[k]['value'] + '" class="choice_btn socketchatbox-messageBody socketchatbox-messageBody-me" id="btn' + i + j + '" type="button">' + data[k]['name'] + '</button>');
                     i += 1;
                 }
 

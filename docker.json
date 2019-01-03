@@ -1,0 +1,11 @@
+{
+  "env" : [
+      {"name":"PYTHONDONTWRITEBYTECODE",
+       "value":""},
+      {"name":"PYTHONUNBUFFERED",
+       "value":"1"}
+  ],
+  "volumes" :["chatbox/code:/code"],
+  "app-name" : "chatbox",
+  "docker-image" : "registry.docker-e9.ijs.si/dfchatbox"
+}
