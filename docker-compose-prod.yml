@@ -4,20 +4,19 @@ services:
   db:
     image: postgres:10.1-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - chatbox_postgres:/var/lib/postgresql/data/
   web:
     build: .
-    command: python /code/manage.py migrate --noinput
-    command: python /code/manage.py runserver 0.0.0.0:8000
+    command: /code/run_production.sh
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - FORWARD_PORT=8000
-      - VIRTUAL_HOST=chatbox
-      - LETSENCRYPT_HOST=chatbox
+      - FORWARD_PORT=3000
+      - VIRTUAL_HOST=chatbox.docker-e9.ijs.si
+      - LETSENCRYPT_HOST=chatbox.docker-e9.ijs.si
       - LETSENCRYPT_EMAIL=vh9691@student.uni-lj.si
     depends_on:
       - db
 
 volumes:
-  postgres_data:
+  chatbox_postgres:

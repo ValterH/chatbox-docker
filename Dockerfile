@@ -7,7 +7,7 @@ WORKDIR /code
 COPY Pipfile Pipfile.lock /code/
 
 # Install dependencies
-RUN pip install pipenv && \
+RUN pip install pipenv uwsgi && \
     cd /code && \
     pipenv install --system && \
     pip uninstall -y pipenv
