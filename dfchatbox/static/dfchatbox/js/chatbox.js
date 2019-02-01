@@ -304,10 +304,22 @@ function communicate(message,j){
                         }
                         else {
                             if (keys[l]=="email") {
-                                reply_others += slo_keys[l] + ": " + '<a href="mailto:' + data[k][keys[l]] + '">' + data[k][keys[l]] + '</a><br>';
+                                var email= data[k][keys[l]];
+                                var emails = email.split(" ")
+                                for (e=0; e < emails.length; e++) {
+                                    var number = ""
+                                    if (e > 0) number = e + 1;
+                                    reply_others += slo_keys[l] + " " + number +": " + '<a target="_blank" href="mailto:' + emails[e] + '">' + emails[e] + '</a><br>';
+                                }
                             }
                             else if (keys[l]=="phone" && data[k][keys[l]] != "telefon ni podan") {
-                                reply_others += slo_keys[l] + ": " + '<a href="tel:' + data[k][keys[l]] + '">' + data[k][keys[l]] + '</a><br>'
+                                var phone = data[k][keys[l]];
+                                var phones = phone.split(" ")
+                                for (p=0; p < phones.length; p++) {
+                                    var number = ""
+                                    if (p > 0) number = p + 1;
+                                    reply_others += slo_keys[l] + " " + number + ": " + '<a href="tel:'  + phones[p] + '">' + phones[p] + '</a><br>'
+                                }
                             }
                             else {
                                 reply_others += slo_keys[l] + ": " + data[k][keys[l]] + "<br>";
