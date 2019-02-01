@@ -3,18 +3,27 @@ version: '3'
 services:
   db:
     image: postgres:10.1-alpine
+    restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - chatbox_postgres:/var/lib/postgresql/data/
   web:
     build: .
-    command: python /code/manage.py migrate --noinput
-    command: python /code/manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
-    ports:
-      - 8000:8000
+    command: /code/run_production.sh
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - FORWARD_PORT=3000
+      - VIRTUAL_HOST=chatbox.docker-e9.ijs.si
+      - LETSENCRYPT_HOST=chatbox.docker-e9.ijs.si
+      - LETSENCRYPT_EMAIL=vh9691@student.uni-lj.si
+      - SECRET_KEY=%cjc-r3rv4y45qzr!!s-n&4%w)+#0%gn_o6@=rh44r$v&pxe&j
     depends_on:
       - db
+    ports:
+      - 8000:3000
 
 volumes:
-  postgres_data:
+  chatbox_postgres:
